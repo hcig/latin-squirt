@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Latin Square Helper</title>
+  <script src="assets/alpinejs.min.js" defer></script>
+  <script type="module" src="assets/input-spinner.webcomponent.mjs"></script>
+  <style>
+    body {
+      font-family: Ubuntu, sans-serif;
+      overflow: hidden;
+    }
+    table {
+      font-size: 2em;
+      letter-spacing: .3em;
+    }
+  </style>
+</head>
+<body x-data="data">
+  <input-spinner min="0" max="999" style="width:8em" id="participant"
+                 :value="participant" @click="update"></input-spinner>
+  <table>
+    <tr>
+      <template x-for="s in square">
+        <td x-text="s"></td>
+      </template>
+    </tr>
+  </table>
+  <script>
+    const SquaresConfig4 = [
+      ['A', 'B', 'C', 'D'],
+      ['C', 'D', 'A', 'B'],
+      ['B', 'A', 'D', 'C'],
+      ['D', 'C', 'B', 'A']
+    ]
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('data', () => ({
+        participant: 1,
+        square: SquaresConfig4[this.participant - 1],
+        async init() {
+          const res = await fetch('http://localhost:3000/latest');
+          const r = await res.json();
+          this.participant = r.participant + 1;
+          this.setSquare();
+        },
+        update() {
+          console.log("FOOO");
+          this.participant = document.getElementById('participant').value;
+          this.setSquare();
+        },
+        setSquare() {
+          this.square = SquaresConfig4[(this.participant - 1) % 4];
+        }
+      }));
+    });
+  </script>
+</body>
+</html>
